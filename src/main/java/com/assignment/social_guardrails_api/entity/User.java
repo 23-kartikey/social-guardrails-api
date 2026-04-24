@@ -1,5 +1,6 @@
 package com.assignment.social_guardrails_api.entity;
 
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,7 +18,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name="user")
+@Table(name="users")
 public class User {
     
     @Id
@@ -29,4 +30,6 @@ public class User {
     private String username;
 
     private boolean isPremium;
+
+
 }
