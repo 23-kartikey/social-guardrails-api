@@ -26,5 +26,5 @@ public class User {
     @NotNull
     private String username;
 
-    private boolean is_premium;
+    private boolean isPremium;
 }
