@@ -1,21 +1,22 @@
 spring:
     application:
-        name=social-guardrails-api
+        name: social-guardrails-api
 
     datasource: 
-        url: jdbc:postgresql://localhost:5432/social_guardrails
+        url: jdbc:postgresql://localhost:5433/social_guardrails
         username: postgres
         password: postgres
         driver-class-name: org.postgresql.Driver
 
     jpa:
         hibernate:
-            ddl-auto: update
+            ddl-auto: create
         show-sql: true
         properties:
             hibernate:
                 format_sql: true
-                jdbc: Asia/Kolkata
+                jdbc: 
+                    time_zone: Asia/Kolkata
         data:
             redis:
                 host: localhost
