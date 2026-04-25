@@ -20,7 +20,7 @@ public class PostService{
         this.authRepo=authRepo;
     }
 
-    public PostResponse newPost(PostRequest post){
+    public PostResponse createPost(PostRequest post){
         authRepo.findById(post.getAuthorId()).orElseThrow(()->new AuthorNotFoundException(post.getAuthorId()));
         return toPostResponse(postRepo.save(toPost(post)));
     }
