@@ -21,9 +21,9 @@ public class BotService {
     
     private BotRepository repo;
     private PostRepository postRepo;
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
 
-    public BotService(BotRepository repo, RedisTemplate redisTemplate, PostRepository postRepo){
+    public BotService(BotRepository repo, RedisTemplate<String, Object> redisTemplate, PostRepository postRepo){
         this.repo=repo;
         this.redisTemplate=redisTemplate;
         this.postRepo=postRepo;
