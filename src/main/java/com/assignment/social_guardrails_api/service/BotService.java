@@ -2,6 +2,8 @@ package com.assignment.social_guardrails_api.service;
 
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,7 @@ import com.assignment.social_guardrails_api.repository.BotRepository;
 @Service
 public class BotService {
     
+    private static final Logger logger=LoggerFactory.getLogger(BotService.class);
     private BotRepository repo;
     private StringRedisTemplate redisTemplate;
 
@@ -49,13 +52,18 @@ public class BotService {
     public boolean canBotReply(Long postId){
         String key="post:"+postId+":bot_count";
         Long count=redisTemplate.opsForValue().increment(key);
-        return count<=100;
+        if(count>100){
+            logger.info("BLOCKED BY REPLIES");
+            throw new BotCommentLimitException();
+        }
+        return true;
     }
 
     public boolean checkCooldown(Long botId, Post post){
         Long userId=post.getAuthorId();
         String key="cooldown:bot_"+botId+":user_"+userId;
         if(redisTemplate.hasKey(key)){
+            logger.info("BLOCKED BY COOLDOWN");
             throw new BotCommentLimitException();
         }
         redisTemplate.opsForValue().set(key, "1", 10, TimeUnit.MINUTES);
