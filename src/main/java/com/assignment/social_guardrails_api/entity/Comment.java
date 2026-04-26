@@ -44,6 +44,10 @@ public class Comment {
     @JoinColumn(name="post_id", nullable=false)
     private Post post;
 
+    @ManyToOne
+    @JoinColumn(name = "parent_comment_id")
+    private Comment parentComment;
+
     @Column(nullable=false, updatable=false)
     private LocalDateTime createdAt;
 
