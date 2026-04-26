@@ -16,6 +16,8 @@ import com.assignment.social_guardrails_api.service.CommentService;
 import com.assignment.social_guardrails_api.service.LikeService;
 import com.assignment.social_guardrails_api.service.PostService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping(path="/api/posts", produces="application/json")
 public class PostController {
@@ -31,12 +33,12 @@ public class PostController {
     }
     
     @PostMapping
-    public ResponseEntity<PostResponse> createPost(@RequestBody PostRequest post){
+    public ResponseEntity<PostResponse> createPost(@Valid @RequestBody PostRequest post){
         return ResponseEntity.ok(postService.createPost(post));
     }
 
     @PostMapping("/{postId}/comments")
-    public ResponseEntity<CommentResponse> createComment(@PathVariable Long postId, @RequestBody CommentRequest comment){
+    public ResponseEntity<CommentResponse> createComment(@PathVariable Long postId, @Valid @RequestBody CommentRequest comment){
         return ResponseEntity.ok(commService.createComment(comment, postId));
     }
 
