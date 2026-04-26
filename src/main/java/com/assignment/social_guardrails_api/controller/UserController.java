@@ -11,6 +11,8 @@ import com.assignment.social_guardrails_api.dto.UserRequest;
 import com.assignment.social_guardrails_api.dto.UserResponse;
 import com.assignment.social_guardrails_api.service.UserService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -22,7 +24,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponse> createUser(@RequestBody UserRequest user){
+    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRequest user){
         return ResponseEntity.status(HttpStatus.CREATED).body(service.createUser(user));
     }
 }
