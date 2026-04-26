@@ -6,22 +6,22 @@ import com.assignment.social_guardrails_api.dto.PostRequest;
 import com.assignment.social_guardrails_api.dto.PostResponse;
 import com.assignment.social_guardrails_api.entity.Post;
 import com.assignment.social_guardrails_api.exception.AuthorNotFoundException;
-import com.assignment.social_guardrails_api.repository.AuthorRepository;
+import com.assignment.social_guardrails_api.repository.UserRepository;
 import com.assignment.social_guardrails_api.repository.PostRepository;
 
 @Service
 public class PostService{
 
     private final PostRepository postRepo;
-    private final AuthorRepository authRepo;
+    private final UserRepository userRepo;
 
-    public PostService(PostRepository postRepo, AuthorRepository authRepo){
+    public PostService(PostRepository postRepo, UserRepository userRepo){
         this.postRepo=postRepo;
-        this.authRepo=authRepo;
+        this.userRepo=userRepo;
     }
 
     public PostResponse createPost(PostRequest post){
-        authRepo.findById(post.getAuthorId()).orElseThrow(()->new AuthorNotFoundException(post.getAuthorId()));
+        userRepo.findById(post.getAuthorId()).orElseThrow(()->new AuthorNotFoundException(post.getAuthorId()));
         return toPostResponse(postRepo.save(toPost(post)));
     }
 
