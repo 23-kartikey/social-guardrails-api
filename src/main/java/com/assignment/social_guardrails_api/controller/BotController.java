@@ -11,6 +11,8 @@ import com.assignment.social_guardrails_api.dto.BotRequest;
 import com.assignment.social_guardrails_api.dto.BotResponse;
 import com.assignment.social_guardrails_api.service.BotService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("api/bots")
 public class BotController {
@@ -22,7 +24,7 @@ public class BotController {
     }
 
     @PostMapping
-    public ResponseEntity<BotResponse> createBot(@RequestBody BotRequest bot){
+    public ResponseEntity<BotResponse> createBot(@Valid @RequestBody BotRequest bot){
         return ResponseEntity.status(HttpStatus.CREATED).body(service.createBot(bot));
     }
 
