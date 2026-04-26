@@ -10,11 +10,9 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update 
-    show-sql: true
+      ddl-auto: create 
     properties:
       hibernate:
-        format_sql: true
         jdbc:
           time_zone: Asia/Kolkata
 
