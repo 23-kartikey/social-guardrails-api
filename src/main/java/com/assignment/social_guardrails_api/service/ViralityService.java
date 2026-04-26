@@ -1,12 +1,14 @@
 package com.assignment.social_guardrails_api.service;
 
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.stereotype.Service;
 
+@Service
 public class ViralityService {
     
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final StringRedisTemplate redisTemplate;
 
-    public ViralityService(RedisTemplate redisTemplate){
+    public ViralityService(StringRedisTemplate redisTemplate){
         this.redisTemplate=redisTemplate;
     }
 
