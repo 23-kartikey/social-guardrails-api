@@ -2,51 +2,36 @@ package com.assignment.social_guardrails_api.scheduler;
 
 import java.util.List;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.redis.core.RedisTemplate;
+import java.util.concurrent.TimeUnit;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import com.assignment.social_guardrails_api.service.NotificationService;
 
 @Service
 public class NotificationScheduler {
 
-    private final Logger logger=LoggerFactory.getLogger(NotificationScheduler.class);
+    private final StringRedisTemplate redisTemplate;
+    private final NotificationService notificationService;
 
-    private final RedisTemplate<String, Object> redisTemplate;
-
-    public NotificationScheduler(RedisTemplate<String, Object> redisTemplate){
+    public NotificationScheduler(StringRedisTemplate redisTemplate, NotificationService notificationService){
         this.redisTemplate=redisTemplate;
+        this.notificationService=notificationService;
     }
 
-    @Scheduled(fixedRate = 300000)
-    public void processNotifications() {
+    @Scheduled(fixedRate=40000)
+    public void notificationSweep(){
+        Set<String> keys=redisTemplate.keys("user:*:pending_notifs");
 
-        String usersSetKey = "pending:notif:users";
-
-        Set<Object> users = redisTemplate.opsForSet().members(usersSetKey);
-
-        if (users == null || users.isEmpty()) return;
-
-        for (Object userObj : users) {
-
-            Long userId = Long.valueOf(userObj.toString());
-            String listKey = "user:" + userId + ":pending_notifs";
-
-            Long count = redisTemplate.opsForList().size(listKey);
-
-            if (count != null && count > 0) {
-
-                List<Object> messages = redisTemplate.opsForList()
-                    .range(listKey, 0, -1);
-
-                logger.info()
-
-                redisTemplate.delete(listKey);
-            }
-
-            redisTemplate.opsForSet().remove(usersSetKey, userId);
+        for(String key: keys){
+            List<String> messages=redisTemplate.opsForList()
+                        .range(key, 0, -1);
+            redisTemplate.delete(key);
+            int size=messages.size();
+            String botName=messages.get(0).split(" ")[0];
+            notificationService.sendNotification("Summarized Push Notification: "+botName+" and "+(size-1)+" others interacted with your posts");
         }
     }
+
 }
