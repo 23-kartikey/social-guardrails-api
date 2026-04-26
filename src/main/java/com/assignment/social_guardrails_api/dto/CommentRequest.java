@@ -14,4 +14,6 @@ public class CommentRequest {
 
     @NotNull(message="AuthorId is required")
     private Long authorId;
+
+    private Long parentCommentId;
 }
