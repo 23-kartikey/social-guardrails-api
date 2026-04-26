@@ -28,4 +28,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(429).build();
     }
 
+    @ExceptionHandler(IllegalAuthorException.class)
+    public ResponseEntity<String> handleIllegalAuthorException(IllegalAuthorException ex){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
 }
