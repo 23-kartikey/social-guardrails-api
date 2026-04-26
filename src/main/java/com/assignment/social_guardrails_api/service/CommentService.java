@@ -10,6 +10,7 @@ import com.assignment.social_guardrails_api.dto.CommentResponse;
 import com.assignment.social_guardrails_api.entity.Comment;
 import com.assignment.social_guardrails_api.entity.Post;
 import com.assignment.social_guardrails_api.entity.User;
+import com.assignment.social_guardrails_api.exception.CommentDepthLimitReachedException;
 import com.assignment.social_guardrails_api.exception.PostNotFoundException;
 import com.assignment.social_guardrails_api.repository.CommentRepository;
 import com.assignment.social_guardrails_api.repository.PostRepository;
@@ -63,7 +64,40 @@ public class CommentService {
 
     private Comment toComment(CommentRequest req, Long postId){
         Post post=postRepo.findById(postId).orElseThrow(()->new PostNotFoundException(postId));
-        return Comment.builder().authorId(req.getAuthorId()).content(req.getContent()).post(post).build();
+
+        Comment parent=null;
+        int newDepth=1;
+
+        if(req.getParentCommentId()!=null){
+            parent=commRepo.findById(req.getParentCommentId()).orElseThrow(()->new RuntimeException("Comment parent not found"));
+        }
+        else{
+            return Comment.builder().authorId(req.getAuthorId()).content(req.getContent()).post(post).depthLevel(newDepth).build();
+        }
+        
+        if(!parent.getPost().getId().equals(postId)){
+            throw new RuntimeException("Invalid parent comment for this post");
+        }
+
+        String parentKey="comment:"+parent.getId()+":depth";
+        String depthStr=redisTemplate.opsForValue().get(parentKey);
+
+        int parentDepth;
+
+        if(depthStr!=null){
+            parentDepth=Integer.parseInt(depthStr);
+        }
+        else{
+            parentDepth=parent.getDepthLevel();
+        }
+
+        newDepth=parentDepth+1;
+
+        if(newDepth>20){
+            throw new CommentDepthLimitReachedException();
+        }
+
+        return Comment.builder().authorId(req.getAuthorId()).content(req.getContent()).post(post).parentComment(parent).depthLevel(newDepth).build();
 
     }
 
