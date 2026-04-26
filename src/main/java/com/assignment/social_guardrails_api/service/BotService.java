@@ -53,7 +53,6 @@ public class BotService {
         String key="post:"+postId+":bot_count";
         Long count=redisTemplate.opsForValue().increment(key);
         if(count>100){
-            logger.info("BLOCKED BY REPLIES");
             throw new BotCommentLimitException();
         }
         return true;
@@ -63,7 +62,6 @@ public class BotService {
         Long userId=post.getAuthorId();
         String key="cooldown:bot_"+botId+":user_"+userId;
         if(redisTemplate.hasKey(key)){
-            logger.info("BLOCKED BY COOLDOWN");
             throw new BotCommentLimitException();
         }
         redisTemplate.opsForValue().set(key, "1", 10, TimeUnit.MINUTES);
