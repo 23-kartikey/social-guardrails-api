@@ -2,31 +2,26 @@ package com.assignment.social_guardrails_api.service;
 
 import java.util.concurrent.TimeUnit;
 
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.assignment.social_guardrails_api.dto.BotRequest;
 import com.assignment.social_guardrails_api.dto.BotResponse;
 import com.assignment.social_guardrails_api.entity.Bot;
-import com.assignment.social_guardrails_api.entity.Comment;
 import com.assignment.social_guardrails_api.entity.Post;
+import com.assignment.social_guardrails_api.exception.AuthorNotFoundException;
 import com.assignment.social_guardrails_api.exception.BotCommentLimitException;
-import com.assignment.social_guardrails_api.exception.PostNotFoundException;
-import com.assignment.social_guardrails_api.repository.AuthorRepository;
 import com.assignment.social_guardrails_api.repository.BotRepository;
-import com.assignment.social_guardrails_api.repository.PostRepository;
 
 @Service
 public class BotService {
     
     private BotRepository repo;
-    private PostRepository postRepo;
-    private RedisTemplate<String, Object> redisTemplate;
+    private StringRedisTemplate redisTemplate;
 
-    public BotService(BotRepository repo, RedisTemplate<String, Object> redisTemplate, PostRepository postRepo){
+    public BotService(BotRepository repo, StringRedisTemplate redisTemplate){
         this.repo=repo;
         this.redisTemplate=redisTemplate;
-        this.postRepo=postRepo;
     }
 
     public BotResponse createBot(BotRequest bot){
@@ -43,6 +38,10 @@ public class BotService {
         bot.setName(req.getName());
         bot.setPersonaDescription(req.getPersonaDescription());
         return bot;
+    }
+
+    public String getName(Long botId){
+        return repo.findById(botId).orElseThrow(()->new AuthorNotFoundException(botId)).getName();
     }
 
     //redis methods
