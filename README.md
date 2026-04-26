@@ -24,8 +24,10 @@ The system enforces strict constraints on interactions (likes, comments, bot rep
 
 ### Data Layer
 
-- PostgreSQL stores Users, Posts, and Comments.
+- PostgreSQL stores Users, Bots, Posts, Likes and Comments.
 - All writes are performed only after validation against Redis guardrails.
+- I have implemented an inherited relationship with JOINED between Users and Bots using the parent abstract class Author.
+- There is a unqiue constraint created and stored in the Likes entity which ensures no multiple likes from the sane user to a post.
 
 ### Redis Responsibilities
 
