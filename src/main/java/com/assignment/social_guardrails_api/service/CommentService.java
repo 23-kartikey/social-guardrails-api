@@ -1,7 +1,8 @@
 package com.assignment.social_guardrails_api.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.assignment.social_guardrails_api.dto.CommentRequest;
@@ -17,37 +18,40 @@ import com.assignment.social_guardrails_api.repository.UserRepository;
 @Service
 public class CommentService {
     
-    private static final Logger logger =LoggerFactory.getLogger(CommentService.class);
-
     private final CommentRepository commRepo;
     private final PostRepository postRepo;
     private final UserRepository userRepo;
     private final BotService botService;
     private final ViralityService viralityService;
-    private final UserService userService;
+    private final NotificationService notificationService;
+    private final StringRedisTemplate redisTemplate;
 
-    public CommentService(CommentRepository commRepo, PostRepository postRepo, ViralityService viralityService, UserRepository userRepo, BotService botService, UserService userService){
+    public CommentService(CommentRepository commRepo, PostRepository postRepo, ViralityService viralityService, UserRepository userRepo, BotService botService, NotificationService notificationService, StringRedisTemplate redisTemplate){
         this.commRepo=commRepo;
         this.postRepo=postRepo;
         this.userRepo=userRepo;
         this.botService=botService;
         this.viralityService=viralityService;
-        this.userService=userService;
+        this.redisTemplate=redisTemplate;
+        this.notificationService=notificationService;
     }
 
     public CommentResponse createComment(CommentRequest req, Long postId){
         Comment comment=toComment(req, postId);
+        Post post=postRepo.findById(postId).orElseThrow(()->new PostNotFoundException(postId));
         if(userRepo.existsById(req.getAuthorId())){
             User user=userRepo.findById(req.getAuthorId()).get();
             viralityService.increaseScore(postId, 50);
             commRepo.save(comment);
-            logger.info(user.getUsername()+" replied to your post");
+            redisTemplate.opsForValue()
+                    .set("user:"+post.getAuthorId()+":notif_cooldown", "1", 15, TimeUnit.MINUTES);
+            notificationService.sendNotification(user.getUsername()+" replied to your post");
         }
         else{
             if(botService.canBotReply(postId) && botService.checkCooldown(comment.getAuthorId(), comment.getPost())){
                 viralityService.increaseScore(postId, 1);
                 commRepo.save(comment);
-                userService.handleBotNotification(comment.getPost().getAuthorId(), "Bot "+ comment.getAuthorId()+" replied to your post");
+                notificationService.handleNotification(post.getAuthorId(), botService.getName(comment.getAuthorId()) + " replied to your post");
             }
         }
         return toCommentResponse(comment);
