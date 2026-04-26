@@ -2,7 +2,6 @@ package com.assignment.social_guardrails_api.scheduler;
 
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,7 @@ public class NotificationScheduler {
         this.notificationService=notificationService;
     }
 
-    @Scheduled(fixedRate=40000)
+    @Scheduled(fixedRate=300000)
     public void notificationSweep(){
         Set<String> keys=redisTemplate.keys("user:*:pending_notifs");
 
